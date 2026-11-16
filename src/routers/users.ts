@@ -1,10 +1,21 @@
-import express, { type Request, type Response } from 'express';
+import { Router } from 'express';
 import usersMiddleware from "../middlewares/users-middleware.ts";
-import { User } from '../models/User.ts';
+import { validateBody, validateObjectId } from "../middlewares/validation.ts";
+import * as users from "../controllers/users.ts";
 
-const router = express.Router();
+/**
+ * @openapi
+ * tags:
+ *   - name: Users
+ *     description: Пользователи в MongoDB
+ */
+const router = Router();
+const createBody = validateBody(["name", "email", "password"]);
+const updateBody = validateBody(["name", "email"]);
 
 router.use(usersMiddleware);
+router.all("/:id", validateObjectId);
+
 
 // GET - получение всех пользователей
 // curl.exe "http://localhost:3001/users"
@@ -32,14 +43,7 @@ router.use(usersMiddleware);
  *             schema:
  *               type: string
  */
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const users = await User.find();
-    res.status(200).send(users);
-  } catch (error) {
-    res.status(500).send('Ошибка при получении пользователей');
-  }
-});
+router.get('/', users.listUsers);
 
 // POST - создание пользователя
 // curl.exe -X POST -d "name=curl&email=curl@mail.ru" "http://localhost:3001/users"
@@ -68,6 +72,10 @@ router.get('/', async (req: Request, res: Response) => {
  *                 type: string
  *                 format: email
  *                 example: curl@mail.ru
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 8
  *     responses:
  *       201:
  *         description: Пользователь успешно создан
@@ -82,15 +90,7 @@ router.get('/', async (req: Request, res: Response) => {
  *             schema:
  *               type: string
  */
-router.post('/', async (req: Request, res: Response) => {
-  try {
-    const user = await User.create(req.body);
-    res.status(201);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send('Ошибка при создании пользователя');
-  }
-});
+router.post('/', createBody, users.createUser);
 
 // PATCH - изменение никнейма И/ИЛИ почты пользователя
 // curl.exe -X PATCH -d "name=super_curl" "http://localhost:3001/users/6acdf089366930e5d6703f6f"
@@ -141,18 +141,7 @@ router.post('/', async (req: Request, res: Response) => {
  *             schema:
  *               type: string
  */
-router.patch('/:id', async (req: Request, res: Response) => {
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    res.status(200);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send('Ошибка при обновлении пользователя');
-  }
-});
+router.patch('/:id', updateBody, users.updateUser);
 
 // DELETE - удаление пользователя по его айди
 // curl.exe -X DELETE "http://localhost:3001/users/6acdf089366930e5d6703f6f"
@@ -187,15 +176,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
  *             schema:
  *               type: string
  */
-router.delete('/:id', async (req: Request, res: Response) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    res.status(200);
-    res.send(`Пользователь с id = ${req.params.id} успешно удален`);
-  } catch (error) {
-    res.status(500).send('Ошибка при удалении пользователя');
-  }
-});
+router.delete('/:id', users.deleteUser);
 
 // GET - информация о пользователе по его айди
 // curl.exe "http://localhost:3001/users/6acdf089366930e5d6703f6f"
@@ -229,15 +210,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
  *             schema:
  *               type: string
  */
-router.get('/:id', async (req: Request, res: Response) => {
-  try {
-    const user = await User.findById(req.params.id);
-    res.status(200);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send('Ошибка при получении пользователя');
-  }
-});
+router.get('/:id', users.getUser);
 
 export default router;
-
