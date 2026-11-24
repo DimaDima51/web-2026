@@ -6,6 +6,7 @@ import {
   listProducts,
   updateProduct,
 } from "../controllers/products.ts";
+import { requireAuth } from '../middlewares/auth.ts';
 
 const router = express.Router();
 
@@ -16,6 +17,8 @@ const router = express.Router();
  *     tags:
  *       - Products
  *     summary: Получение всех товаров
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Список товаров успешно получен
@@ -25,10 +28,12 @@ const router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Product'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при получении списка товаров
  */
-router.get('/', listProducts);
+router.get('/', requireAuth, listProducts);
 
 /**
  * @openapi
@@ -37,6 +42,8 @@ router.get('/', listProducts);
  *     tags:
  *       - Products
  *     summary: Создание товара
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -50,10 +57,12 @@ router.get('/', listProducts);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при создании товара
  */
-router.post('/', createProduct);
+router.post('/', requireAuth, createProduct);
 
 /**
  * @openapi
@@ -62,6 +71,8 @@ router.post('/', createProduct);
  *     tags:
  *       - Products
  *     summary: Обновление товара
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -91,10 +102,12 @@ router.post('/', createProduct);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при обновлении товара
  */
-router.patch('/:id', updateProduct);
+router.patch('/:id', requireAuth, updateProduct);
 
 /**
  * @openapi
@@ -103,6 +116,8 @@ router.patch('/:id', updateProduct);
  *     tags:
  *       - Products
  *     summary: Удаление товара
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -112,10 +127,12 @@ router.patch('/:id', updateProduct);
  *     responses:
  *       200:
  *         description: Товар успешно удалён
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при удалении товара
  */
-router.delete('/:id', deleteProduct);
+router.delete('/:id', requireAuth,deleteProduct);
 
 /**
  * @openapi
@@ -124,6 +141,8 @@ router.delete('/:id', deleteProduct);
  *     tags:
  *       - Products
  *     summary: Получение товара по ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -137,9 +156,11 @@ router.delete('/:id', deleteProduct);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при получении товара
  */
-router.get('/:id', getProduct);
+router.get('/:id', requireAuth, getProduct);
 
 export default router;

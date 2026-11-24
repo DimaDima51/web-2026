@@ -2,6 +2,7 @@ import { Router } from 'express';
 import usersMiddleware from "../middlewares/users-middleware.ts";
 import { validateBody, validateObjectId } from "../middlewares/validation.ts";
 import * as users from "../controllers/users.ts";
+import { requireAuth } from '../middlewares/auth.ts';
 
 /**
  * @openapi
@@ -14,7 +15,7 @@ const createBody = validateBody(["name", "email", "password"]);
 const updateBody = validateBody(["name", "email"]);
 
 router.use(usersMiddleware);
-router.all("/:id", validateObjectId);
+router.all("/:id", requireAuth, validateObjectId);
 
 
 // GET - получение всех пользователей
@@ -27,6 +28,8 @@ router.all("/:id", validateObjectId);
  *       - Users
  *     summary: Получение всех пользователей
  *     description: Возвращает всех пользователей из базы данных
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Список пользователей успешно получен
@@ -36,6 +39,8 @@ router.all("/:id", validateObjectId);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при получении списка пользователей
  *         content:
@@ -43,7 +48,7 @@ router.all("/:id", validateObjectId);
  *             schema:
  *               type: string
  */
-router.get('/', users.listUsers);
+router.get('/', requireAuth, users.listUsers);
 
 // POST - создание пользователя
 // curl.exe -X POST -d "name=curl&email=curl@mail.ru" "http://localhost:3001/users"
@@ -55,6 +60,8 @@ router.get('/', users.listUsers);
  *       - Users
  *     summary: Создание пользователя
  *     description: Создаёт нового пользователя и сохраняет его в базе данных
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -83,6 +90,8 @@ router.get('/', users.listUsers);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при создании пользователя
  *         content:
@@ -90,7 +99,7 @@ router.get('/', users.listUsers);
  *             schema:
  *               type: string
  */
-router.post('/', createBody, users.createUser);
+router.post('/', createBody, requireAuth, users.createUser);
 
 // PATCH - изменение никнейма И/ИЛИ почты пользователя
 // curl.exe -X PATCH -d "name=super_curl" "http://localhost:3001/users/6acdf089366930e5d6703f6f"
@@ -104,6 +113,8 @@ router.post('/', createBody, users.createUser);
  *       - Users
  *     summary: Обновление пользователя
  *     description: Обновляет имя и/или электронную почту пользователя по его идентификатору
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -134,6 +145,8 @@ router.post('/', createBody, users.createUser);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при обновлении пользователя
  *         content:
@@ -141,7 +154,7 @@ router.post('/', createBody, users.createUser);
  *             schema:
  *               type: string
  */
-router.patch('/:id', updateBody, users.updateUser);
+router.patch('/:id', updateBody, requireAuth, users.updateUser);
 
 // DELETE - удаление пользователя по его айди
 // curl.exe -X DELETE "http://localhost:3001/users/6acdf089366930e5d6703f6f"
@@ -153,6 +166,8 @@ router.patch('/:id', updateBody, users.updateUser);
  *       - Users
  *     summary: Удаление пользователя
  *     description: Удаляет пользователя из базы данных по его идентификатору
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -169,6 +184,8 @@ router.patch('/:id', updateBody, users.updateUser);
  *             schema:
  *               type: string
  *               example: Пользователь с id = 6acdf089366930e5d6703f6f успешно удален
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при удалении пользователя
  *         content:
@@ -176,7 +193,7 @@ router.patch('/:id', updateBody, users.updateUser);
  *             schema:
  *               type: string
  */
-router.delete('/:id', users.deleteUser);
+router.delete('/:id', requireAuth, users.deleteUser);
 
 // GET - информация о пользователе по его айди
 // curl.exe "http://localhost:3001/users/6acdf089366930e5d6703f6f"
@@ -188,6 +205,8 @@ router.delete('/:id', users.deleteUser);
  *       - Users
  *     summary: Получение пользователя по ID
  *     description: Возвращает информацию о пользователе по его идентификатору
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -203,6 +222,8 @@ router.delete('/:id', users.deleteUser);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при получении пользователя
  *         content:
@@ -210,6 +231,6 @@ router.delete('/:id', users.deleteUser);
  *             schema:
  *               type: string
  */
-router.get('/:id', users.getUser);
+router.get('/:id', requireAuth, users.getUser);
 
 export default router;

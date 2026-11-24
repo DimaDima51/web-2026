@@ -1,7 +1,11 @@
 import express from 'express';
 import * as orders from "../controllers/orders.ts";
+import { validateBody, validateObjectId } from '../middlewares/validation.ts';
+import { requireAuth } from '../middlewares/auth.ts';
 
 const router = express.Router();
+const body = validateBody(["items", "status"]);
+router.all("/:id", requireAuth, validateObjectId);
 
 /**
  * @openapi
@@ -10,6 +14,8 @@ const router = express.Router();
  *     tags:
  *       - Orders
  *     summary: Получение всех заказов
+ *     security:
+ *      - bearerAuth: []
  *     responses:
  *       200:
  *         description: Список заказов успешно получен
@@ -19,10 +25,12 @@ const router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Order'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при получении списка заказов
  */
-router.get('/', orders.listOrders);
+router.get('/', requireAuth, orders.listOrders);
 
 /**
  * @openapi
@@ -31,6 +39,8 @@ router.get('/', orders.listOrders);
  *     tags:
  *       - Orders
  *     summary: Создание заказа
+ *     security:
+ *      - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -44,10 +54,12 @@ router.get('/', orders.listOrders);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при создании заказа
  */
-router.post('/', orders.createOrder);
+router.post('/', requireAuth, orders.createOrder);
 
 /**
  * @openapi
@@ -56,6 +68,8 @@ router.post('/', orders.createOrder);
  *     tags:
  *       - Orders
  *     summary: Обновление заказа
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -92,10 +106,12 @@ router.post('/', orders.createOrder);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при обновлении заказа
  */
-router.patch('/:id', orders.updateOrder);
+router.patch('/:id', requireAuth, orders.updateOrder);
 
 /**
  * @openapi
@@ -104,6 +120,8 @@ router.patch('/:id', orders.updateOrder);
  *     tags:
  *       - Orders
  *     summary: Удаление заказа
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -113,10 +131,12 @@ router.patch('/:id', orders.updateOrder);
  *     responses:
  *       200:
  *         description: Заказ успешно удалён
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при удалении заказа
  */
-router.delete('/:id', orders.deleteOrder);
+router.delete('/:id', requireAuth, orders.deleteOrder);
 
 /**
  * @openapi
@@ -125,6 +145,8 @@ router.delete('/:id', orders.deleteOrder);
  *     tags:
  *       - Orders
  *     summary: Получение заказа по ID
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -138,9 +160,11 @@ router.delete('/:id', orders.deleteOrder);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Order'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: Ошибка при получении заказа
  */
-router.get('/:id', orders.getOrder);
+router.get('/:id', requireAuth, orders.getOrder);
 
 export default router;

@@ -1,13 +1,12 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import { openapiDefinition } from "../docs/openapi.ts";
 
 const options = {
+    failOnErrors: true,
     definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Web-technologies project 2026",
-            version: "1.0.0",
-        },
+        ...openapiDefinition,
         components: {
+            ...openapiDefinition.components,
             schemas: {
                 User: {
                     type: "object",

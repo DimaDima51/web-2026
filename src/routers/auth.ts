@@ -44,7 +44,16 @@ const body = validateBody(["email", "password"]);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               type: object
+ *               required:
+ *                 - user
+ *                 - accessToken
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 accessToken:
+ *                   type: string
+ *                   description: JWT-токен с полями id и email пользователя
  *       400:
  *         description: Некорректное тело запроса
  *       401:

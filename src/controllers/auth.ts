@@ -2,6 +2,9 @@ import type { Request, Response } from "express";
 import { User } from "../models/User.ts";
 import bcrypt from "bcrypt";
 import { HttpError } from "../utils/HttpError.ts";
+import jwt from "jsonwebtoken";
+
+export const secret = "asdasdasdasd123123";
 
 export async function login (req: Request, res: Response) {
     const email = req.body.email;
@@ -20,5 +23,8 @@ export async function login (req: Request, res: Response) {
         return;
     }
 
-    res.status(200).send(user);
+    const accessToken = jwt.sign({id: user._id, email: user.email}, secret, {algorithm: "HS256", issuer: "web-2026"});
+
+
+    res.status(200).json({user, accessToken});
 }
